@@ -1,0 +1,44 @@
+﻿@page "/add-student"
+@using webassembly_app.Shared;
+@inject StudentService StudentService
+@inject CourseService CourseService
+
+<h3>Add Student</h3>
+
+<EditForm Model="newStudent" OnValidSubmit="AddStudent">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <label for="Name">Name:</label>
+    <InputText id="Name" @bind-Value="newStudent.Name" />
+
+    <label for="Marks">Marks:</label>
+    <InputNumber id="Marks" @bind-Value="newStudent.Marks" />
+
+    <label for="CourseId">Course:</label>
+    <InputSelect id="CourseId" @bind-Value="newStudent.CourseId">
+        <option value="">Select Course</option>
+        @foreach (var course in courses)
+        {
+            <option value="@course.Id">@course.CourseName</option>
+        }
+    </InputSelect>
+
+    <button type="submit">Save</button>
+</EditForm>
+
+@code {
+    private Student newStudent = new Student();
+    private IEnumerable<Course> courses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        courses = await CourseService.GetCoursesAsync();
+    }
+
+    private async Task AddStudent()
+    {
+        var addedStudent = await StudentService.AddStudentAsync(newStudent);
+        newStudent = new Student(); // Clear the form
+    }
+}
